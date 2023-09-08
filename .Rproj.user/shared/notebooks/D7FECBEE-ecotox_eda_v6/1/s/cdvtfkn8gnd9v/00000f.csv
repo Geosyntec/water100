@@ -1,0 +1,5 @@
+"0","ecotox_tax_distance <- readRDS(""~/Documents/repos/water100/data/ecotox_tax_distance.rds"")
+"
+"2","Warning: cannot open compressed file '/Users/christiannilsen/Documents/repos/water100/data/ecotox_tax_distance.rds', probable reason 'No such file or directory'"
+"2","Error in gzfile(file, ""rb"") : cannot open the connection
+"

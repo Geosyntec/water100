@@ -1,0 +1,3 @@
+"0","chemicals_df.3 <- chemicals_df.2 %>% left_join(pc_df, by = join_by(formatted_cas == query ))
+"
+"2","Warning: Each row in `x` is expected to match at most 1 row in `y`."

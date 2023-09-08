@@ -1,0 +1,7 @@
+"0"," p1 <- ggplot(data = sel_tests, "
+"0","              aes(x = log10(dose), y = percent_val)) +"
+"0"," geom_point() +"
+"0","geom_smooth(method = ""glm"","
+"0","             method.args = list(family = binomial(link = ""logit"")), colour = ""#FF0000"", se = TRUE)"
+"0",""
+"0","p1"

@@ -1,0 +1,6 @@
+"0","ecotox.tax.distance <- salmon_models.df %>% 
+  rename(genus = common_name.Y) %>% 
+  left_join(ecotox_species_codes,by=join_by(genus)) %>% 
+  select(c(species_number,common_name,latin_name,taxonomic.distance))
+"
+"2","Warning: Each row in `x` is expected to match at most 1 row in `y`."

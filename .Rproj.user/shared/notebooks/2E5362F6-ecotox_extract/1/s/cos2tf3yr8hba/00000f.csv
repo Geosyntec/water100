@@ -1,0 +1,61 @@
+"0","library(bit64)
+"
+"2","Loading required package: bit
+"
+"2","
+Attaching package: ‘bit’
+
+"
+"2","The following object is masked from ‘package:dplyr’:
+
+    symdiff
+
+"
+"2","The following object is masked from ‘package:base’:
+
+    xor
+
+"
+"2","Attaching package bit64
+"
+"2","package:bit64 (c) 2011-2017 Jens Oehlschlaegel
+"
+"2","creators: integer64 runif64 seq :
+"
+"2","coercion: as.integer64 as.vector as.logical as.integer as.double as.character as.bitstring
+"
+"2","logical operator: ! & | xor != == < <= >= >
+"
+"2","arithmetic operator: + - * / %/% %% ^
+"
+"2","math: sign abs sqrt log log2 log10
+"
+"2","math: floor ceiling trunc round
+"
+"2","querying: is.integer64 is.vector [is.atomic} [length] format print str
+"
+"2","values: is.na is.nan is.finite is.infinite
+"
+"2","aggregation: any all min max range sum prod
+"
+"2","cumulation: diff cummin cummax cumsum cumprod
+"
+"2","access: length<- [ [<- [[ [[<-
+"
+"2","combine: c rep cbind rbind as.data.frame
+"
+"2","WARNING don't use as subscripts
+"
+"2","WARNING semantics differ from integer
+"
+"2","for more help type ?bit64
+"
+"2","
+Attaching package: ‘bit64’
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    :, %in%, is.double, match, order, rank
+
+"

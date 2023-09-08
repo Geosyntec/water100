@@ -1,0 +1,7 @@
+"0","moas <- read_excel(here(""xlsx"",""envirotox_20230828155443.xlsx""), 
+    sheet = ""substance"") %>% mutate(CAS = as.numeric(CAS))
+"
+"2","Warning: [38;5;251mThere was 1 warning in `mutate()`.[39m
+[38;5;251m[36mℹ[38;5;251m In argument: `CAS = as.numeric(CAS)`.[39m
+Caused by warning:
+[33m![39m NAs introduced by coercion"

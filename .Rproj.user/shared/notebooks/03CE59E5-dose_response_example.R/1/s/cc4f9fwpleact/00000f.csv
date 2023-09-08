@@ -1,0 +1,53 @@
+"0","rm(list=ls())"
+"0",""
+"0","library(dplyr)"
+"2","
+Attaching package: ‘dplyr’
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"0","library(drc)"
+"2","Loading required package: MASS
+"
+"2","
+Attaching package: ‘MASS’
+
+"
+"2","The following object is masked from ‘package:dplyr’:
+
+    select
+
+"
+"2","
+'drc' has been loaded.
+
+"
+"2","Please cite R and 'drc' if used for a publication,
+"
+"2","for references type 'citation()' and 'citation('drc')'.
+
+"
+"2","
+Attaching package: ‘drc’
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    gaussian, getInitial
+
+"
+"0","library(readr)"
+"0","library(here)"
+"2","here() starts at /Users/christiannilsen/Documents/repos/water100
+"
+"0","library(readxl)"
+"0",""

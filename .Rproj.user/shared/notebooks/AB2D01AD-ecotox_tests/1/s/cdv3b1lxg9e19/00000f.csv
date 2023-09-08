@@ -1,0 +1,2 @@
+"0","chemicals <- readRDS(here(""data"",""selected_chemical_info.rds""))"
+"0",""

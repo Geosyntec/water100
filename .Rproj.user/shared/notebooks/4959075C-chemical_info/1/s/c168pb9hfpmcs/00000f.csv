@@ -1,0 +1,8 @@
+"0",""
+"0","# ecotox_search_chemicals <- EPA_aquatic_criteria %>% left_join("
+"0","#   ecotox.chemicals %>% "
+"0","#     collect() %>% "
+"0","#     mutate(cas_number = cas_number %>% as.numeric()), by = join_by(CAS == cas_number))"
+"0",""
+"0","#ecotox_search_cas <- ecotox_search_chemicals$CAS"
+"0",""

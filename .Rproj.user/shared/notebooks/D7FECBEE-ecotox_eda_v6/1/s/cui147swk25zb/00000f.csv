@@ -1,0 +1,6 @@
+"0","summary5 <- summary4 %>% filter(taxonomic.distance == 1 & endpoint ==""LC50"") %>% "
+"0","  dplyr::dplyr::select(c(test_id,test_cas)) %>% unique()"
+"2","Error: unexpected '::' in:
+""summary5 <- summary4 %>% filter(taxonomic.distance == 1 & endpoint ==""LC50"") %>% 
+  dplyr::dplyr::""
+"

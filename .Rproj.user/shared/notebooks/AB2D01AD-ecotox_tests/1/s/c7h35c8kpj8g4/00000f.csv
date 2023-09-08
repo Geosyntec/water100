@@ -1,0 +1,8 @@
+"0","summary5 <- summary4 %>% filter(taxonomic.distance == 1 & endpoint ==""LC50"") %>% "
+"0","  select(c(test_id,test_cas)) %>% unique()"
+"0",""
+"0",""
+"0","summary6 <- summary4 %>% filter(test_cas %in% summary5$test_cas )"
+"0",""
+"0","summary6 %>% clipr::write_clip()"
+"0",""
