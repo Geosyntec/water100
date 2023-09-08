@@ -23,10 +23,26 @@ This repository contains code for the [Water100 Project](https://water100project
      .R and .Rmd scripts for analysis
 
 * `/xlsx`   
-additional spreadsheets 
+additional spreadsheets   
 * `/docx`   
     Report (in progress)
+  
+## Ecotox Database
+Due to its large size, the Ecotox database is not included in the GitHub repository. However, you can build it locally using the {ECOTOXr} package. 
+The package documentation and source code are available at the [ECOTOXr GitHub Repository](https://github.com/pepijn-devries/ECOTOXr).
 
+To install the ECOTOXr package and build the database, you can follow these steps:
+
+``` r
+#install Ecotoxr
+install.packages("ECOTOXr")
+
+# Load library
+library(ECOTOXr)
+
+#Build the database locally
+build_ecotox_db() 
+```
 
 ## Usage
 #### R/ecotox_eda_v6.Rmd
