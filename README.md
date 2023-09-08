@@ -1,7 +1,3 @@
-Absolutely, I've updated the README.md sample with the styling and link for ECOTOX. Here it is:
-
----
-
 # Water100 Project
 
 ## Overview
