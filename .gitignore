@@ -1,0 +1,14 @@
+./db/ecotox_ascii_06_15_2023.sqlite
+./db/eim_local.sqlite
+./data-raw/archive/db/tests.txt
+./data-raw/archive/db/results.txt
+./data-raw/archive/db/media_characteristics.txt
+./data/ecotox_results.rds
+./db/
+./archive/
+./*/archive/
+.DS_Store
+Desktop.ini
+.Rhistory
+./data-raw/
+
