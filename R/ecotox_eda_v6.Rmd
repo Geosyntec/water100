@@ -1,0 +1,205 @@
+---
+title: "Ecotox Exploratory Notebook"
+output: html_notebook
+---
+
+This notebook explores Ecotox data and selects appropriate tests 
+and results for the Water 100 Project
+
+# Setup 
+
+## Import libraries 
+```{r}
+library(tidyverse)
+library(dbplyr)
+
+
+library(readr)
+library(here)
+library(jsonlite)
+library(readxl)
+library(webchem)
+
+```
+## Helper Functions 
+
+
+## Relevant Columns 
+
+```{r}
+relevant_cols <- (c(
+    "test_id",
+    "reference_number",
+    "chemical_name",
+    "Chemical_name",
+    "test_cas",
+    "species_number",
+    "organism_habitat",
+    "exposure_type",
+    "control_type",
+    "media_type",
+    "genus",
+    "common_name",
+    "latin_name",
+    "species",
+    "ecotox_group",
+    "obs_duration_mean",
+    "obs_duration_unit",
+    "endpoint",
+    "effect",
+    "measurement",
+    "conc1_mean",
+    "conc1_unit",
+    "conversion_factors",
+    "conc_ug_L", 
+    "taxonomic.distance",
+    "r", "R2", "intercept", "slope","MSE",
+    "endpoint_type", "US-EPA New Chemical Categories", "CAS", "ASTER",
+    "chemical_name",
+    "ecotox_group",  
+    "dtxsid", "epaName","formatted_cas"
+  ))
+
+```
+
+
+
+Find tests with relevant cas and endpoints 
+```{r}
+
+# Join the three tables on relevant keys
+ecotox_tests <- readRDS("~/Documents/repos/water100/data/ecotox_tests.rds")
+sel_effect_codes <- c("MOR", "MORT", "GMOR", "PSUR", "SURV", 
+                  "SVVS")
+
+
+# View or store the result
+candidate_tests <- ecotox_tests %>%
+  filter(effect %in% sel_effect_codes)%>% 
+  filter(media_type == "FW" | media_type == "FW/" ) #filter for freshwater only
+
+  
+#how many cas in candidate tests 
+candidate_tests$test_cas %>% unique() %>% length()
+
+
+```
+
+
+```{r}
+library(readxl)
+moas <- read_excel(here("xlsx","envirotox_20230828155443.xlsx"), 
+    sheet = "substance") %>% mutate(CAS = as.numeric(CAS))
+  
+
+```
+
+```{r}
+
+
+ecotox_tax_distance <- readRDS("~/Documents/repos/water100/data/ecotox_tax_distance.rds")
+
+tax_dist = ecotox_tax_distance %>% select(c(common_name, latin_name, species_number, taxonomic.distance)) %>% distinct() 
+
+summary_data <- candidate_tests %>% 
+  left_join(tax_dist,by=join_by(species_number)) 
+
+cas_salmonid_tests <- summary_data %>% filter(taxonomic.distance <= 4)
+
+
+#join with ecotox data 
+summary3 <- cas_salmonid_tests %>% 
+  left_join(ecotox.chemicals %>% collect(),by=join_by(test_cas == cas_number)) %>% 
+  #left_join(tax.distance,by=join_by(latin_name==latin_name.X)) %>% 
+  mutate(test_cas = test_cas %>% as.numeric())
+
+```
+
+```{r}
+
+#join summary data to moas 
+summary4 <- summary3 %>% 
+  left_join(moas,by=join_by(test_cas == CAS)) %>% 
+  #add in endpoint descriptions 
+  left_join(ecotox.endpoint_codes %>% collect() %>% 
+            dplyr::select(c(code,endpoint_description = description))
+            ,by=join_by(endpoint == code)) %>% 
+  #remove trailing slash in some endpoint codes 
+  mutate(endpoint = gsub("/|*", "",endpoint)) %>% 
+  select(-chemical_name) %>% 
+  #join with ecotox category 
+  left_join(ecotox_cas_summary, by = join_by(test_cas == cas_number)) %>% select(any_of(relevant_cols)) 
+```
+
+
+Find tests and cas where lc50 for salmonids 
++ low vals for taxonomic.distance <5
++ high vals for taxonmic.distance <5
+```{r}
+
+endpoint_classifications <- read_excel(here("xlsx","endpoint_classifications.xlsx")) %>% 
+  dplyr::select(c(endpoint,endpoint_type = Type,percent_val)) %>% filter(endpoint_type != "out" )
+
+summary7 <- summary4 %>% left_join(endpoint_classifications,by=join_by(endpoint))%>% 
+  dplyr::select(any_of(relevant_cols)) %>% filter(endpoint_type != "NA")
+
+
+# 
+# # Extracting the unique CAS values meeting the criteria
+# cas_values <- filtered_data$test_cas
+
+summary8 <- summary7 %>% 
+  mutate(has_low = (endpoint_type == "low")) %>% 
+  mutate(has_mid = (endpoint_type == "mid")) %>% 
+  mutate(has_high = (endpoint_type == "high"))
+
+
+
+filtered_cas <- summary8 %>%
+  group_by(test_cas) %>%
+  summarise(
+    has_low_any = any(has_low == TRUE),
+    has_mid_any = any(has_mid == TRUE),
+    has_high_any = any(has_high == TRUE)
+  )
+
+filtered_cas <- filtered_cas %>%
+  filter( 
+    rowSums(filtered_cas %>% dplyr::select(c(has_low_any,has_mid_any,has_high_any))) == 3
+  )
+
+summary9 <- summary7 %>% 
+  filter(test_cas %in% filtered_cas$test_cas) %>% 
+  mutate(endpoint = gsub("/|[*]", "",endpoint)) %>% 
+  left_join(ecotox_cas_summary.3 %>% select(
+    c(cas_number,formatted_cas,epaName)
+  ), by=join_by(test_cas == cas_number))
+
+summary9 %>% clipr::write_clip()
+
+library(readr)
+library(here)
+#write_rds(summary9,here("data",'cas_tests_taxdist.rds'))
+
+test_filter <- summary9$test_id
+
+
+test_outputs <- ecotox.tests %>% filter(test_id %in% test_filter) %>% collect()
+write_rds(test_outputs,here('data','ecotox_w100_tests.rds'))
+
+result_outputs <- ecotox.results %>% filter(test_id %in% test_filter) %>% collect()
+write_rds(result_outputs %>% collect(),here('data','ecotox_w100_results.rds'))
+#result_filter <- result_outputs$result_id
+
+# dose_outputs <- ecotox.doses %>% filter(test_id %in% test_filter) %>% collect()
+# 
+# dose_link_outputs <- result_outputs %>% inner_join(ecotox.dose_response_links,by=join_by(result_id))
+#   
+#   result_outputsecotox.dose_response_links %>% filter(result_id %in% result_filter) %>% collect()
+```
+```{r}
+
+
+
+```
+

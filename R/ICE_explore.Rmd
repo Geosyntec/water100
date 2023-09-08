@@ -1,0 +1,112 @@
+---
+title: "Interspecies Correlation Estimation examples"
+output: html_notebook
+---
+```{r}
+library(readxl)
+library(tidyr)
+library(ggplot2)
+library(here)
+library(stringr)
+library(dplyr)
+library(readr)
+```
+
+```{r}
+
+
+split_model_df <- function(df.in) {
+  df.in %>%
+  separate(Species.X, into = c("common_name.X", "latin_name.X"), sep = " \\(", extra = "merge") %>%
+   mutate(latin_name.X = sub("\\)", "", latin_name.X)) %>% 
+  separate(Species.Y, into = c("common_name.Y", "latin_name.Y"), sep = " \\(", extra = "merge") %>%
+   mutate(latin_name.Y = sub("\\)", "", latin_name.Y))
+  }
+
+Aq_Species_Models <- read_excel(here("data-raw/ICE","Aq_Species_Models.xls")) %>% split_model_df()
+Aq_Genus_Models <- read_excel(here("data-raw/ICE","Aq_Genus_Models.xls"))%>% split_model_df()
+Aq_Family_Models <- read_excel(here("data-raw/ICE","Aq_Family_Models.xls"))%>% split_model_df()
+ # salmon_models.df <- Aq_Genus_Models %>% filter(str_detect(common_name.Y, "Oncorhynchus"))
+salmon_models.df <- Aq_Genus_Models %>% filter(str_detect(latin_name.X, "Oncorhynchus"))
+#write_rds(salmon_models.df,here("data","salmon_models.rds"))
+```
+
+```{r}
+##Get the taxonomic distance from salmon for each species
+#tax.distance <- salmon_models.df %>% dplyr::select(c(genus = common_name.Y,taxonomic.distance)) %>% distinct()
+
+#join with ecotox species_codes 
+ecotox_species_codes <- readRDS(here("data","ecotox_species.rds"))
+
+ecotox.tax.distance <- salmon_models.df %>% 
+  rename(genus = common_name.Y) %>% 
+  left_join(ecotox_species_codes,by=join_by(genus)) %>% 
+  select(c(species_number,common_name,latin_name,taxonomic.distance))
+
+
+# ecotox.ice.data <- salmon_models.df %>% dplyr::select(c(genus = common_name.Y,taxonomic.distance)) %>% 
+#   distinct() %>% 
+#   left_join(ecotox_species_codes,by=join_by(genus))
+
+write_rds(ecotox.tax.distance,here("data","salmonid_tax_distance.rds"))
+
+```
+
+```{r}
+#moa_summary_lc50s <- read_rds(here('data','moa_summary_lc50s.rds'))
+#df.tests.species <- read_rds(here('data','df_tests_species.rds'))
+
+```
+
+Match ICE models to Ecotox Data 
+```{r}
+
+#Group and count data
+summary_data <- df.tests.species %>% 
+  left_join(
+  moa_summary_lc50s) %>%
+  #left_join(df.tests)
+  #left_join(endpoints %>% 
+  select(endpoint) %>% 
+  #filter(taxonomic.distance <=4) %>% 
+  group_by(Group, Name, endpoint, endpoint_description,latin_name, taxonomic.distance) %>%
+  summarise(n_tests = n()) %>%
+  ungroup()
+# 
+# summary_data %>% clipr::write_clip()
+# 
+# tax.lists <- aa %>% select(taxonomic.distance,latin_name,common_name) %>% distinct() %>% arrange(taxonomic.distance)
+# 
+# tax.lists %>% clipr::write_clip()
+```
+
+
+
+# Filter models
+
+Filter available models with the following guidance from *Raimondo, Lilavois, and Barron, “Web-Based Interspecies Correlation Estimation (Web-ICE) for Acute Toxicity: User Manual (Version 3.3, EPA/600/R-15/192). US Environmental Protection Agency, Office of Research and Development, Gulf Ecology Division.”*
+
+> Model attributes, such as taxonomic distance of the predicted and surrogate species, model parameters, and cross-validation success rate, should be used to select models with low uncertainty. The following criteria should be used as a guide to select more accurate predictions. These values are intended to be for guidance purposes only; predicted values should be evaluated holistically using best professional judgement. 
+>
+>1. Relatively low mean square error (MSE) (< 0.95) 
+>2. High R2 value (> 0.6) 
+>3. High slope (> 0.6) 
+>4. Close taxonomic distance (< 4) 
+>5. Narrow confidence intervals (one order of magnitude between lower and upper limit)
+
+
+```{r}
+model_filter <- salmon_models.df %>% 
+  filter(
+    MSE < 0.95 & 
+    R2 > 0.6 & 
+    slope > 0.6 &
+    `taxonomic distance` <= 4
+    )
+model_filter
+```
+
+```{r}
+plot <- model_filter %>% ggplot(aes(x=`taxonomic distance`,y=MSE)) + geom_point()
+plot
+```
